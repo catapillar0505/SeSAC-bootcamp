@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"c:\\\\class\\\\JavaStudy\" /b /ad)",
+      "Bash(mkdir -p \"c:/class/JavaStudy/.vscode\")",
+      "Bash(Get-ChildItem -Recurse \"c:\\\\class\\\\JavaStudy\\\\11_IO\")",
+      "Bash(Select-Object FullName)"
+    ],
+    "additionalDirectories": [
+      "c:\\class\\JavaStudy"
+    ]
+  }
+}
