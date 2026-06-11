@@ -9,9 +9,9 @@ orElseThrow 메서드를 통해
 
 # Enum
 
-- enum은 서로 관련된 상수들을 하나의 타입으로 묶어서, 타입 안전성을 보장하고 의미 있는 동작까지 추가할 수 있는 특수한 클래스입니다.
+- enum은 서로 관련된 상수들을 하나의 타입으로 묶어서, **타입 안전성**을 보장하고 의미 있는 동작까지 추가할 수 있는 특수한 클래스입니다.
 - 타입 안정성이란 컴파일 시점에 내가 선언한 상수만 타입으로 인정하도록 하여, 그 외 값은 걸러주는 것을 의미합니다.
-- 이넘 상수(ex POST_NOT_FOUND)는 객체처럼 필드와 메서드를 갖습니다. 즉 데이터를 가지고 동작이 가능합니다.
+- 이넘 상수(ex POST_NOT_FOUND)는 필드와 메서드를 갖습니다. 즉 데이터를 가지고 동작이 가능합니다.
 - 각 enum 상수는 컴파일 시점에 변환된 'static final' **객체**이다. jvm이 관리한다.
 - enum 상수는 해당 enum 타입의 인스턴스인데, static final로 관리되기 때문에 JVM 내에서 단 하나만 존재하는 싱글톤이에요. 그래서 == 비교가 안전하고 thread-safe합니다.
 - 싱글톤이기 때문에 == 비교시 같은 이름의 이넘 상수라면, 무조건 같은 객체이다.
@@ -20,21 +20,7 @@ orElseThrow 메서드를 통해
 - 메모리 삭제 → GC 담당인데, static이라 프로그램 종료 전까지 삭제 안 됨
 - "enum 상수는 static final로 관리되기 때문에 생성 이후 참조 변경도, 메모리 삭제도 불가능해요. 결국 조회만 가능한 구조라서 여러 스레드가 동시에 접근해도 충돌이 생길 여지가 없고, 그래서 thread-safe합니다."
 
-# 왜 커스텀 예외는 런타임 예외를 상속받는가???
-
-`RuntimeException`이 **Unchecked Exception**이기 때문이에요.
-
-Unchecked = 컴파일러가 **"이거 처리해"라고 강제하지 않음**
-
-그래서 `throws` 선언도, `try-catch`도 없이 그냥 던질 수 있어요.
-
-반대로 `Exception`을 직접 상속하면 Checked가 돼서,
-던지는 모든 메서드에 `throws CustomException` 붙여야 하고,
-호출하는 쪽도 전부 `try-catch` 강제예요.
-
-그 번거로움을 피하려고 **RuntimeException을 상속**하는 거예요.
-
-# PostResponse 완전 쉽게 이해하기
+# mybatis PostResponse 완전 쉽게 이해하기
 
 ### 🍕 피자 가게 비유로 생각해보자
 
@@ -161,3 +147,34 @@ public PostResponse findById(Long id) {
 
 > `Post`는 **DB용 날것 데이터**, `PostResponse`는 **클라이언트에게 줄 포장 데이터**.  
 > `from()`은 둘을 **변환해주는 직원**이고, 서비스는 그 직원을 **호출하는 매니저**야.
+
+# Mybatis 파라미터 바인딩 ${} 문법
+
+`단순 치환`
+
+> 테이블 이름, 필드명, 정렬 키워드 -> 파라미터화 가능
+
+```xml
+<select id="findAll" resultMap="postWithUser">
+  SELECT p.id as post_id, p.user_id, p.title, p.content, p.created_at as post_created_at,
+         u.email, u.nickname, u.created_at as user_created_at
+  FROM users u
+  INNER JOIN posts p ON u.id = p.user_id
+  ORDER BY post_id ${sort}
+  LIMIT #{offset}, #{size}
+</select>
+```
+
+**2. `ORDER BY post_id #{sort}` — 동적 정렬은 `${}` 사용**
+
+`#{}` 는 PreparedStatement의 **값(value)** 바인딩이라 `'ASC'`처럼 따옴표가 붙어버려요.
+컬럼명이나 ASC/DESC 같은 **SQL 키워드**는 `${}` 를 써야 해요.
+
+```sql
+ORDER BY post_id ${sort}   -- ✅
+ORDER BY post_id #{sort}   -- ❌ → ORDER BY post_id 'ASC' 로 해석됨
+```
+
+> ⚠️ `${}` 는 SQL Injection 위험이 있으니, 서비스 레이어에서 `"ASC"/"DESC"` 만 허용하도록 검증 필수.
+
+
