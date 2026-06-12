@@ -14,7 +14,7 @@ public interface PostMapper {
 
   Optional<Post> findById(Long id);
 
-  List<Post> findAll(@Param("offset") Long offset, @Param("size") int size);
+  List<Post> findAll(@Param("offset") Long offset, @Param("size") int size, @Param("sort") String sort);
 
   int save(Post post);
   int update(Post post);

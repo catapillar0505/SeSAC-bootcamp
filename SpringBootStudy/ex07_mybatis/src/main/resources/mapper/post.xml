@@ -31,15 +31,14 @@
     WHERE p.id = #{id}
   </select>
 
-  <select id="findAll" resultMap="postWithUser">
-      SELECT p.id as post_id, p.user_id, p.title, p.content, p.created_at as post_created_at,
-      u.email, u.nickname, u.created_at as user_created_at
-    FROM users u
-    INNER JOIN posts p ON u.id = p.user_id
-    WHERE p.id = #{id}
-    ORDER BY post_id DESC;
-    LIMIT #{offset}, #{size}
-  </select>
+<select id="findAll" resultMap="postWithUser">
+  SELECT p.id as post_id, p.user_id, p.title, p.content, p.created_at as post_created_at,
+         u.email, u.nickname, u.created_at as user_created_at
+  FROM users u
+  INNER JOIN posts p ON u.id = p.user_id
+  ORDER BY post_id ${sort}
+  LIMIT #{offset}, #{size}
+</select>
 
   <!-- insert, update, delete 태그는 결과 타입을 명시하면 오류납니다.-->
   <insert id="save" useGeneratedKeys="true" keyProperty="id">
@@ -54,8 +53,8 @@
     WHERE id = #{id}
   </update>
 
-  <delete id="delete">
-    DLETE FROM posts
+  <delete id="deleteById">
+    DELETE FROM posts
     WHERE id = #{id}
   </delete>
 </mapper>
