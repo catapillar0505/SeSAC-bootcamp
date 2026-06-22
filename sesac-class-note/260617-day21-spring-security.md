@@ -11,7 +11,7 @@
 7. [비밀번호 암호화 — PasswordEncoder](#7-비밀번호-암호화--passwordencoder)
 8. [AuthenticationManager & Provider — 인증 처리 중심](#8-authenticationmanager--provider)
 9. [SecurityContext — 인증 성공 후 정보 보관함](#9-securitycontext--인증-성공-후-정보-보관함)
-10. [세션 기반 인증 전체 흐름](#10-세션-기반-인증-전체-흐름)
+10. [세션 인증과 토큰 인증](#10-세션-인증과-토큰-인증)
 11. [역할(Role) 기반 인가](#11-역할role-기반-인가)
 12. [다중 서버 환경에서의 세션 확장 전략](#12-다중-서버-환경에서의-세션-확장-전략)
 13. [CORS & CSRF 설정](#13-cors--csrf-설정)
@@ -490,7 +490,7 @@ securityContextRepository.saveContext(context, request, response);
 > **자주 하는 실수**: `SecurityContextHolder`에만 저장하고 세션에 저장 안 하는 경우.
 > 같은 요청 안에서는 인증이 유지되지만, 다음 요청이 오면 인증이 사라집니다.
 
-## 10. 세션 기반 인증 전체 흐름
+## 10. 세션 인증과 토큰 인증
 
 지금까지 배운 모든 컴포넌트를 연결해서 전체 그림을 봅니다.
 
@@ -554,6 +554,7 @@ public ResponseEntity<?> login(@RequestBody LoginRequest request,
     return ResponseEntity.ok("로그인 성공");
 }
 ```
+
 
 ## 11. 역할(Role) 기반 인가
 
