@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+
+  <script>
+    { 
+      // (1) var, let 초기할당이 없으면 undefined
+      var a;
+      console.log(a, typeof a);
+      
+      var a;
+      a = 19;
+      console.log(a, typeof a);
+      
+      a = 'hello world';
+      console.log(a, typeof a);
+      let b;
+
+      // (2) const 초기할당이 없으면 오류
+      const c = true;
+
+      // (3) let은 재선언 불가
+      // let b;
+    }
+    // (4) 스코프를 벗어나면 접근 불가
+    // console.log(b) 
+
+    // 호이스팅
+    {
+      money = 1000;
+      console.log(money);
+      var money; // 인터프리터가 var 선언부를 가장 먼저 읽어 처리합니다
+
+      console.log(car);
+      var car = 'sonata';
+      console.log(car);
+    }
+  </script>
+  
+</body>
+</html>

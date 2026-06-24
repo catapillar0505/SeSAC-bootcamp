@@ -1,3 +1,74 @@
+# Java 예외 & Spring 트랜잭션 롤백 정책
+
+## 1. 예외 계층 구조
+
+```
+Throwable
+├── Error                  → JVM 오류, 예외처리 대상 아님
+└── Exception
+    ├── IOException 등     → Checked 예외 (일반 예외)
+    └── RuntimeException   → Unchecked 예외 (실행 예외)
+        ├── NullPointerException
+        ├── IllegalArgumentException
+        └── ArrayIndexOutOfBoundsException
+```
+
+---
+
+## 2. Checked vs Unchecked 차이
+
+| 구분 | Checked (일반 예외) | Unchecked (실행 예외) |
+|---|---|---|
+| 상속 | `Exception` 직접 상속 | `RuntimeException` 상속 |
+| 컴파일러 강제 | ✅ `try-catch` 또는 `throws` 필수 | ❌ 없어도 컴파일 OK |
+| 발생 시점 | 예측 가능한 외부 상황 (파일 없음, 네트워크 등) | 프로그래머 실수 (null 참조, 배열 범위 초과 등) |
+
+```java
+// Checked → throws 없으면 컴파일 에러
+public void readFile() throws IOException {
+    FileReader fr = new FileReader("test.txt");
+}
+
+// Unchecked → throws 없어도 컴파일 OK, 런타임에 터짐
+public void doSomething(String s) {
+    System.out.println(s.length()); // null이면 NPE
+}
+```
+
+---
+
+## 3. @Transactional 기본 롤백 정책
+
+| 예외 종류 | 기본 동작 | 이유 |
+|---|---|---|
+| `RuntimeException` (Unchecked) | ✅ 자동 롤백 | 예상 못한 버그 → 전부 없던 일로 |
+| `Error` | ✅ 자동 롤백 | JVM 수준 오류 |
+| `Exception` (Checked) | ❌ 롤백 안 함 → **커밋** | 예측된 상황 → DB 작업은 유효하다고 판단 |
+
+> **핵심**: 예외처리 강제 여부가 아니라 **의도의 차이**
+> - Checked = "예측된 상황이니 커밋 유지"
+> - Unchecked = "예상 못한 오류니 전부 롤백"
+
+---
+
+## 4. 롤백 정책 커스터마이징
+
+```java
+// Checked 예외도 롤백하고 싶을 때
+@Transactional(rollbackFor = IOException.class)
+
+// RuntimeException인데 롤백 하기 싫을 때 (거의 안 씀)
+@Transactional(noRollbackFor = IllegalArgumentException.class)
+```
+
+---
+
+## 5. 실무 패턴
+
+- Spring / JPA는 대부분의 Checked 예외를 **Unchecked로 래핑**해서 던짐
+  → `SQLException` → `DataAccessException` (RuntimeException)
+- 커스텀 예외는 보통 `RuntimeException`을 상속해서 자동 롤백 타게 설계
+
 # System.out.println() 안 쓰는 이유
 
 // System.out → 무조건 출력, 끌 수가 없음

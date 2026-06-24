@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    // 일치, 불일치
+    {
+      console.log(10 === 10);
+      console.log(10 === '10');
+
+    }
+
+    // falsy: if 조건에서 Boolean(값)이 false처럼 동작하는 값
+    //  [ == false => 느슨한 비교 연산 결과시의 규칙 ]
+    // 1. boolean이 있으면 → 숫자로 변환
+    // 2. 숫자 vs 문자열이면 → 문자열을 숫자로
+    // 3. null / undefined는 → 서로끼리만 true, 나머지 전부 false
+    {
+      console.log(0 == false);
+      console.log(undefined == false); // falsy는 맞으나, 예외적으로 == 연산에서 false랑 동일취급 안된다.
+      console.log(null == false);
+      console.log('' == false);
+
+    }
+
+    // 논리 연산
+    {
+      let a = '';
+      console.log(a || 'hello'); // a값이 있으면 사용 없으면 hello 사용
+    }
+
+    //널 병합 - 널리쉬한 것들은 ??로 디폴트 지정
+    {
+      let a;
+      let b = null;
+      console.log(a ?? 'nullish');
+    }
+
+    //
+  </script>
+</body>
+</html>

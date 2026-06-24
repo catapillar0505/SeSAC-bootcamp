@@ -370,45 +370,58 @@ Spring Boot는 Fat JAR (Uber JAR) 방식으로 빌드해서, 의존성까지 전
 
 
 
-## **Redirect vs 포워딩**
+## Redirect vs Forward 사용 이유
 
+### 핵심 개념 먼저
 
-
-브라우저 URL이 바뀌어야 하는 상황  →  Redirect
-
-서버 내부에서만 처리 위임           →  Forward
-
-
-
-/login 에서 로그인 성공
-
-    ↓
-
-"너 이제 /main 으로 가"  (Redirect)
-
-    ↓
-
-브라우저 URL이 /main 으로 바뀜
-
-사용자도 주소창에서 확인 가능
-
-
+**Forward** → 서버 내부에서 요청을 넘김. 브라우저는 URL이 바뀐 줄 모름.
+**Redirect** → 서버가 브라우저한테 "이 URL로 다시 요청해"라고 응답. 브라우저 URL이 바뀜.
 
 ---
 
-/login 에서 로그인 실패
+### DB 변경(INSERT/UPDATE/DELETE) → Redirect 써야 하는 이유
 
-    ↓
+**문제 상황:**
+```
+브라우저 → POST /board/write (글 작성) → 서버가 INSERT 실행
+→ Forward로 결과 페이지 보여줌
+→ 브라우저 URL은 여전히 POST /board/write
+→ 사용자가 F5(새로고침) 누름
+→ 브라우저: "이전 POST 요청 다시 보낼까요?"
+→ 사용자가 확인 누름
+→ INSERT 또 실행됨 → 중복 데이터 생성!
+```
 
-서버 내부에서 error.jsp로 포워딩
+이게 바로 **"새로고침 중복 제출 문제"**다.
 
-    ↓
+**Redirect로 해결:**
+```
+POST /board/write → INSERT 실행
+→ Redirect → GET /board/list
+→ 브라우저 URL이 GET /board/list로 바뀜
+→ F5 눌러도 GET /board/list 재요청 → 그냥 목록 조회만 됨
+```
 
-브라우저 URL은 여전히 /login
+이 패턴을 **PRG 패턴 (Post → Redirect → Get)** 이라고 부른다.
 
-사용자는 URL 변화 모름
+---
 
+### DB 조회(SELECT) → Forward 써도 되는 이유
 
+조회는 몇 번을 반복해도 데이터가 변하지 않음. F5로 같은 요청이 재실행돼도 부작용이 없다.
+
+그리고 Forward는 서버 내부에서 처리하기 때문에 네트워크 왕복이 한 번 줄어들어서 약간 더 빠르다.
+
+---
+
+### 한 줄 정리
+
+| 상황 | 방식 | 이유 |
+|---|---|---|
+| INSERT/UPDATE/DELETE | Redirect | 새로고침 시 중복 실행 방지 (PRG 패턴) |
+| SELECT | Forward | 중복돼도 무해하고, 서버 왕복 1번 절약 |
+
+**핵심은 "멱등성"** 이다. 같은 요청을 여러 번 해도 결과가 같으면(SELECT) 포워드, 중복 실행하면 안 되면(INSERT 등) 리다이렉트.
 
 ## **http 상태코드**
 
