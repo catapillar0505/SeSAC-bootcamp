@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <title>Document</title>
+</head>
+<body>
+
+<script type="text/babel" data-presets="typescript,react">
+  /** @type {any} */
+  const globalWindow = window;
+  const { React, ReactDOM } = globalWindow;
+</script>
+
+<div id="root1"></div>
+<script type="text/babel" data-presets="typescript,react">
+
+  // React로 Element 만들기
+  const h1Element = React.createElement(
+    'h1',  // 태그 이름
+    {
+      id: 'title',  // 프로퍼티
+      className: 'title',
+    },
+    'Hello World'  // 태그 텍스트
+  )
+
+  // ReactDOM으로 Element 그리기
+  /** @type {HTMLElement} */
+  const root1 = document.getElementById('root1');
+  ReactDOM.createRoot(root1).render(h1Element);
+
+</script>
+
+<div id="root2"></div>
+<script type="text/babel" data-presets="typescript,react">
+
+  // setInterval 이용한 초시계
+  // new Date().toLocaleTimeString()를 1초 마다 호출하기
+
+  /** @type {HTMLElement} */
+  const root2Element = document.getElementById('root2');
+  const root2 = ReactDOM.createRoot(root2Element);
+
+  // 단순 텍스트 Element 만들기
+  const textElement = React.createElement(
+    'h1',
+    {
+      className: 'time-label',
+    },
+    '초 시계'
+  );
+
+  setInterval(() => {
+
+    // 현재 시간을 초 단위로 보여주는 Element 그리기
+    const timeElement = React.createElement(
+      'h1',
+      {
+        className: 'time',
+      },
+      new Date().toLocaleTimeString()
+    );
+
+    root2.render([textElement, timeElement]);  // 2개 이상 그릴 땐 배열로 전달하기
+
+  }, 1000);
+
+</script>
+
+</body>
+</html>

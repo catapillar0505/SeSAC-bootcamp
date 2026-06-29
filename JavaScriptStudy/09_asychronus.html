@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <!-- XMLHttpRequest 객체 -->
+    <form id="agify-form">
+      <label for="name">이름</label>
+      <!-- 여기 아래에 있는 name 데이터를 document.getElementById('name').value를 이름 park 자리에 넣기 -->
+      <input type="text" id="name" />
+      <button type="submit">제출</button>
+    </form>
+    <div id="agify-result">여기에 결과가 노출됩니다.</div>
+
+    <script>
+      const agifyForm = document.getElementById("agify-form");
+      agifyForm.addEventListener("submit", (e) => {
+        e.preventDefault(); // 폼 제출은 동기 처리 방식이므로, 비동기 요청시 항상 취소해야함.
+        // 이제부터 비동기 요청
+        const xhr = new XMLHttpRequest();
+        // 요청 메서드 주소창에 데이터 넣고 보내는거
+        xhr.open(
+          "get",
+          `https://api.agify.io/?name=${document.getElementById("name").value}`,
+        );
+        xhr.addEventListener("readystatechange", (e) => {
+          if (xhr.readyState === 4) {
+            // 로우 단에서
+            if (xhr.status === 200) {
+              // 로우 단에서 이거 안 쓸거다  ㅋㅋㅋ
+              const result = xhr.responseText; // 응답 결과가 JSON인 경우 "JSON 문자열"로 받아옵니다.
+              const obj = JSON.parse(result); // 이게 뭐로 바뀌냐? js 문자열 -> js 객체로 변환
+              document.getElementById("agify-result").textContent =
+                `count=${obj.count}, name=${obj.name}, age=${obj.age}}`;
+            }
+          }
+        }); // 다 소문자임
+        xhr.send();
+      });
+
+      // network tap에서 요청 정보 name에, --> header, paload(데이터), response 특히 헤더 부분 봐라 요청이랑 응답받는 거
+      // credentials -> 쿠키
+      // cors 등록 해야하지 주소끼리 공유가능 -> Access-Control-Allow-Origin, Content-Type : application/json타입
+      // 응답 헤더에서 X로 시작하는 거는 커스텀 헤더다 ( 표준이 아님 )
+    </script>
+
+    <!-- https://jsonplaceholder.typicode.com/todos/1 -->
+
+    <button id="btn">요청</button>
+    <script>
+      document.getElementById("btn").addEventListener("click", (e) => {
+        let result; // undefiend 상태
+
+        const xhr = new XMLHttpRequest(); // 비동기 시작
+        xhr.open("GET", "https://jsonplaceholder.typicode.com/todos/1");
+        xhr.addEventListener("readystatechange", () => {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              // 객체 구조 분해 할당 obj.title이 아닌
+              const { title } = JSON.parse(xhr.responseText); // 객체가 되는 것이고 { "": 1 } << 꼴로 json꼴로 온다.
+              result = title;
+            }
+          }
+        });
+        xhr.send(); // 비동기 구간 끝
+
+        // 비동기이기 때문에 비동기 시작 끝나는거 안기달리고 바로 출력해버림 result그래서 undefiend 상태라서
+        // promise가 필요함
+
+        console.log(result);
+      });
+    </script>
+
+    <script>
+      // Promise 도입 1  둘중 알아서 주석 처리하시길~
+
+      // 1. Promise 생성 (Promise를 생성한 뒤 반환하는 함수)
+      function fetchTodoData(todoId) {
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest(); // 비동기 시작
+          xhr.open(
+            "GET",
+            `https://jsonplaceholder.typicode.com/todos/${todoId}`,
+          );
+          xhr.addEventListener("readystatechange", () => {
+            if (xhr.readyState === 4) {
+              if (xhr.status === 200) {
+                // 약속 이행 (fulfilled)
+                resolve(JSON.parse(xhr.responseText)); // JSON.parse(xhr.responseText); ->
+              } else {
+                // 약속 거부 (reject)
+                reject(new Error(`요청 실패(상태코드 : ${xhr.status})`));
+              }
+            }
+          });
+          xhr.send(); // 비동기 구간 끝
+        });
+      }
+
+      // 2. Promise 소비 (함수의 반환 값을 받아서 소비)
+      // 실무 코드는 promise 소비를 잘해야한다 !!!
+      // 실무에선 직접 Promise를 만들 일이 읎다 !!!
+      // catch 없이  then에 함수 두개 다 성공, 실패 ㄷ ㅏ 처리 가능하다 -> 추구미가 아님.
+      document.getElementById("btn").addEventListener("click", (e) => {
+        fetchTodoData(1) // Promise 받아 옴 ( 받아 온 뒤 소비하기 )
+          .then((obj) => {
+            console.log("API응답데이터: ", obj);
+          })
+          .catch((error) => {
+            console.error(error.message);
+          });
+      });
+    </script>
+
+    <script>
+      // Promise 도입 2 실무코드 좀더 변수 써서 활용도 극대화
+
+      // 1. Promise 생성 (Promise를 생성한 뒤 반환하는 함수)
+      function fetchData(url) {
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest(); // 비동기 시작
+          xhr.open("GET", url);
+          xhr.addEventListener("readystatechange", () => {
+            if (xhr.readyState === 4) {
+              if (xhr.status === 200) {
+                // 약속 이행 (fulfilled)
+                resolve(JSON.parse(xhr.responseText)); // JSON.parse(xhr.responseText); ->
+              } else {
+                // 약속 거부 (reject)
+                reject(new Error(`요청 실패(상태코드 : ${xhr.status})`));
+              }
+            }
+          });
+          xhr.send(); // 비동기 구간 끝
+        });
+      }
+
+      // 2. Promise 소비 (함수의 반환 값을 받아서 소비)
+      // 실무 코드는 promise 소비를 잘해야한다 !!!
+      // 실무에선 직접 Promise를 만들 일이 읎다 !!!
+      // catch 없이  then에 함수 두개 다 성공, 실패 ㄷ ㅏ 처리 가능하다 -> 추구미가 아님.
+      document.getElementById("btn").addEventListener("click", (e) => {
+        fetchData("https://jsonplaceholder.typicode.com/todos/1") // Promise 받아 옴 ( 받아 온 뒤 소비하기 )
+          .then((obj) => {
+            console.log("API응답데이터: ", obj);
+          })
+          .catch((error) => {
+            console.error(error.message);
+          });
+      });
+
+      // 그 프라미스 만들어져서 반환해요 -> 받아서 then catch를 붙여라 (소비하라)
+    </script>
+
+    <!-- fetch api - fetch() 함수 -->
+    <div>
+      <select id="sel">
+        <option value="cat">고양이</option>
+        <option value="dog">강아지</option>
+      </select>
+      <button id="btn2">요청</button>
+      <div id="result-image"></div>
+    </div>
+
+    <script>
+      document.getElementById("btn2").addEventListener("click", (e) => {
+        const myPromise = fetch(
+          `https://api.the${document.getElementById("sel").value}api.com/v1/images/search`,
+        ) // 아직 사용을 안해서 pending 대기
+          .then((response) => response.json())
+          .then((json) => {
+            console.log(json);
+            const { id, url, width, height } = json[0];
+            const result = `<img src="${url}" width="${width}" alt="개나 고양이">`;
+            document.getElementById("result-image").innerHTML = result;
+          });
+      });
+
+      async function fetchUser() {
+        const todo = await fetch('https://jsonplaceholder.typicode.com/todos/1').then(res => res.json());
+
+        const user = await fetch(`https://jsonplaceholder.typicode.com/users/${todo.userId}`).then(res => res.json());
+
+      }
+    </script>
+  </body>
+</html>

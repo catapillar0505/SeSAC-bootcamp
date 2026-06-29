@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+<script>
+
+  // 카트 아이템
+  class CartItem {
+
+    // private 필드
+    #quantity;
+    #price;
+
+    // 생성자
+    constructor(name, price, quantity = 1) {
+      this.name = name;  // 일반 프로퍼티
+      // this.#price = price;  // private 프로퍼티에 전달 (잘못된 값의 대비가 안 됨)
+      this.price = price;  // Setter를 거쳐 #price에 전달
+      this.quantity = quantity;  // Setter를 거쳐 #quantity에 전달
+    }
+
+    // Getter & Setter
+    get price() {
+      return this.#price;
+    }
+
+    set price(value) {
+      if (value < 0) {
+        console.error('가격은 0보다 작을 수 없습니다.');
+        return;
+      }
+      this.#price = value;
+    }
+
+    get quantity() {
+      return this.#quantity;
+    }
+    
+    set quantity(value) {
+      if ( !Number.isInteger(value) || value < 1 ) {
+        console.error('수량은 최소 1개 이상인 정수여야 합니다.');
+        return;
+      }
+      this.#quantity = value;
+    }
+
+    // 총 가격 반환 메서드
+    getTotalPrice() {
+      return this.#price * this.#quantity;  // 가격 * 수량
+    }
+
+    // 정보 출력 메서드
+    getSummary() {
+      return `${this.name} | 단가: ${this.#price} | 수량: ${this.#quantity} | 총가격: ${this.getTotalPrice()}`;
+    }
+
+    // 수량 추가 메서드
+    addQuantity(amount) {
+      if (amount <= 0) {
+        console.error('추가 수량을 0 이상이어야 합니다.');
+        return;
+      }
+      this.quantity += amount;  // Setter 호출함
+    }
+  }
+
+  // 인스턴스 생성 (생성자 호출)
+  const item = new CartItem('TV', 500000);
+  console.log(item);
+
+  item.addQuantity(1);
+  console.log(item.getSummary());
+
+  item.price = -100000;  // 에러 메시지
+  item.quantity = 1.5;   // 에러 메시지
+
+  // 할인 카트 아이템
+  class DiscountCartItem extends CartItem {
+    
+    // private 프로퍼티
+    #discountRate  // 할인율
+
+    // 생성자 (구현하기)
+    constructor(name, price, quantity = 1, discountRate = 0) {
+      super(name, price, quantity);  // 상속 받는 생성자는 항상 super() 먼저 호출
+      this.discountRate = discountRate;  // Setter 이용해 값 전달
+    }
+
+    // Getter & Setter (구현하기)
+    get discountRate() {
+      return this.#discountRate;
+    }
+
+    set discountRate(value) {
+      if (value < 0 || value > 100) {
+        console.error('할인율은 0 ~ 100 사이여야 합니다.');
+        return;
+      }
+      this.#discountRate = value;
+    }
+
+    // 메서드 오버라이드: getTotalPrice(), getSummary() (구현하기)
+    getTotalPrice() {
+      // 정상 가격 - 할인 가격
+      return (super.price * super.quantity) - (super.price * super.quantity * (this.#discountRate / 100));
+    }
+
+    getSummary() {
+      return `${super.getSummary()} | 할인율: ${this.#discountRate}%`;
+    }
+
+  }
+
+  // 할인 상품 인스턴스 생성
+  const specialItem = new DiscountCartItem('소세지빵', 2000, 1, 50);
+  console.log(specialItem.getSummary());
+
+
+
+</script>
+</body>
+</html>
