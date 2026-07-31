@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <title>Document</title>
+</head>
+<body>
+
+<script type="text/babel">
+  /** @type {any} */
+  const globalWindow = window;
+  const { React, ReactDOM } = globalWindow;
+</script>
+
+<div id="root1"></div>
+<script type="text/babel">
+  
+  // 클래스형 컴포넌트 (React.Component 상속)
+  class ClassComp extends React.Component {
+    /** @returns {React.ReactNode} */
+    render() {
+      return <h1>Class Component</h1>;
+    }
+  }
+
+  // 컴포넌트 렌더링: 컴포넌트를 태그 형식으로 작성합니다.
+  ReactDOM.createRoot(document.getElementById('root1')).render(<ClassComp/>);
+
+</script>
+
+<div id="root2"></div>
+<script type="text/babel">
+  
+  // 함수형 컴포넌트 (단일 JSX 반환)
+
+  /** @type {React.FC} */
+  const FunctionComp = () => {
+    return (
+      <>
+        <h1>Function Component</h1>
+      </>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root2')).render(<FunctionComp/>);
+
+</script>
+
+<div id="root3"></div>
+<script type="text/babel">
+  
+  // 컴포넌트 합성: 컴포넌트 안에 컴포넌트 넣기
+
+  // 1. 내부 컴포넌트
+  /** @type {React.FC} */
+  const InnerComp = () => {
+    return (
+      <h1>Inner Component</h1>
+    );
+  }
+
+  // 2. 외부 컴포넌트 (렌더링할 컴포넌트)
+  /** @type {React.FC} */
+  const OuterComp = () => {
+    return (
+      <>
+        <InnerComp/>
+        <InnerComp/>
+      </>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root3')).render(<OuterComp/>);
+
+</script>
+
+</body>
+</html>

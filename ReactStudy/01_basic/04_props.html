@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <title>Document</title>
+</head>
+<body>
+
+<script type="text/babel">
+  /** @type {any} */
+  const globalWindow = window;
+  const { React, ReactDOM } = globalWindow;
+</script>
+
+<div id="root1"></div>
+<div id="root2"></div>
+<div id="root3"></div>
+<div id="root4"></div>
+<div id="root5"></div>
+
+<script type="text/babel">
+  
+  // props 기본 개념
+
+  // props type
+  /**
+   * @typeof {Object} NameCardProps
+   * @property {string} name
+   * @property {string} phone
+   */ 
+
+  /** @type {React.FC<NameCardProps>} */
+  const NameCard1 = (props) => {  // props 객체에 name, phone 프로퍼티를 전달됩니다.
+    return (
+      <>
+        <div>이름 {props.name}</div>
+        <div>전화 {props.phone}</div>
+      </>
+    )
+  }
+
+  /** @type {string} */
+  const userName = 'min';
+  /** @type {string} */
+  const userPhone = '010-1234-5678';
+
+  ReactDOM.createRoot(document.getElementById('root1')).render([
+    <NameCard1 name={userName} phone={userPhone} />  // 컴포넌트로 name, phone 프로퍼티를 전달합니다.
+  ]);
+
+</script>
+
+</body>
+</html>
